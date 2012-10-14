@@ -13,19 +13,19 @@ big* bigs [100000];
 
 
 int main () {
-    dreserve(100001 * sizeof(big));
+    dreserve(100001 * (sizeof(big) + sizeof(size_t)));
     uint i;
     for (i = 0; i < 100000; i++) {
-        bigs[i] = dalloc<big>();
+        bigs[i] = new (DS) big;
         bigs[i]->x[0] = 1;
     }
     printf("%u %ld %ld\n", i, dused_memory(), dreserved_memory());
     for (i = 0; i < 100000; i++) {
-        dfree(bigs[i]);
+        operator delete (bigs[i], DS);
     }
     printf("%u %ld %ld\n", i, dused_memory(), dreserved_memory());
     for (i = 0; i < 100000; i++) {
-        bigs[i] = dalloc<big>();
+        bigs[i] = new (DS) big;
         bigs[i]->x[0] = 1;
     }
     printf("%u %ld %ld\n", i, dused_memory(), dreserved_memory());

@@ -175,6 +175,9 @@ static inline void dsdelete (T* p) {
     dsfree(p);
 }
 
-
+struct _DS {} DS;
 
 }
+
+void* operator new (size_t size, dumb_tlsf::_DS ds) { return dumb_tlsf::dsalloc(size); }
+void operator delete (void* p, dumb_tlsf::_DS ds) { return dumb_tlsf::dsfree(p); }
