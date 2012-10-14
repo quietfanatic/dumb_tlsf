@@ -1,25 +1,25 @@
 
 #include <stdlib.h>
 
-void* (& _dumb_tlsf_malloc ) (size_t) = malloc;
-void (& _dumb_tlsf_free ) (void*) = free;
+static void* (& _dumb_tlsf_malloc ) (size_t) = malloc;
+static void (& _dumb_tlsf_free ) (void*) = free;
 
 namespace dumb_tlsf_private {
 
-size_t alloc_size = 1<<20;
+static size_t alloc_size = 1<<20;
 
-constexpr uint segregate1 (uint esize, uint l1) {
+static constexpr uint segregate1 (uint esize, uint l1) {
     return (l1 << 2 | (esize >> (l1 - 2) & 3)) - 8;
 }
-constexpr uint segregate (uint esize) {
+static constexpr uint segregate (uint esize) {
     return esize == 0 ? 0 : segregate1(esize, 31 - __builtin_clz(esize));
 }
-constexpr uint esizeof (uint size) {
+static constexpr uint esizeof (uint size) {
     return (size + sizeof(void*) - 1) & ~(sizeof(void*) - 1);
 }
 
  // It'll probably be better to have fewer columns in this table...
-void* table [] = {  // Some of these near the beginning will be unused.
+static void* table [] = {  // Some of these near the beginning will be unused.
     NULL, NULL, NULL, NULL,  // 4
     NULL, NULL, NULL, NULL,  // 8
     NULL, NULL, NULL, NULL,  // 16
@@ -32,7 +32,7 @@ void* table [] = {  // Some of these near the beginning will be unused.
     NULL, NULL, NULL, NULL,  // 2048
     NULL, NULL, NULL, NULL   // 4096
 };
-const size_t max_size = 4096 + 3*1024;
+static const size_t max_size = 4096 + 3*1024;
 
 struct Header {
     Header* prev;
@@ -40,11 +40,11 @@ struct Header {
     char data [0];
 };
 
-Header* res = NULL;
-char* limit = NULL;
-char* end = NULL;
+static Header* res = NULL;
+static char* limit = NULL;
+static char* end = NULL;
 
-void* alloc_e (size_t esize, uint index) {
+static void* alloc_e (size_t esize, uint index) {
     void*& fl = table[index];
     if (fl) {
         void* r = fl;
@@ -66,7 +66,7 @@ void* alloc_e (size_t esize, uint index) {
     }
 }
 
-void free_e (void* p, size_t esize, uint index) {
+static void free_e (void* p, size_t esize, uint index) {
     *(void**)p = table[index];
     table[index] = p;
 }
@@ -75,17 +75,17 @@ void free_e (void* p, size_t esize, uint index) {
 
 namespace dumb_tlsf {
 
-void* dalloc (size_t size) {
+static inline void* dalloc (size_t size) {
     using namespace dumb_tlsf_private;
     return size > max_size ? _dumb_tlsf_malloc(size) : alloc_e(esizeof(size), segregate(esizeof(size)));
 }
 
-void dfree (void* p, size_t size) {
+static inline void dfree (void* p, size_t size) {
     using namespace dumb_tlsf_private;
     return size > max_size ? _dumb_tlsf_free(p) : free_e(p, esizeof(size), segregate(esizeof(size)));
 }
 
-void dreserve (size_t size) {
+static void dreserve (size_t size) {
     using namespace dumb_tlsf_private;
     if (!limit) {
         res = (Header*)_dumb_tlsf_malloc(size);
@@ -96,23 +96,23 @@ void dreserve (size_t size) {
     }
 }
 
-void dset_alloc_size (size_t size) {
+static void dset_alloc_size (size_t size) {
     dumb_tlsf_private::alloc_size = size;
 }
 
-size_t dreserved_memory () {
+static size_t dreserved_memory () {
     using namespace dumb_tlsf_private;
     size_t total = 0;
     for (Header* blk = res; blk; blk = blk->prev)
         total += blk->size;
     return total;
 }
-size_t dused_memory () {
+static size_t dused_memory () {
     using namespace dumb_tlsf_private;
     return dreserved_memory() - (end - limit);
 }
 
-void dapocalypse () {
+static void dapocalypse () {
     using namespace dumb_tlsf_private;
     Header* pres;
     for (; res; res = pres) {
@@ -127,21 +127,21 @@ void dapocalypse () {
 }
 
 template <class T>
-T* dalloc () {
+static inline T* dalloc () {
     return (T*)dalloc(sizeof(T));
 }
 template <class T, class... Args>
-T* dnew (Args... args) {
+static inline T* dnew (Args... args) {
     T* r = dalloc<T>();
     r->T(args...);
     return r;
 }
 template <class T>
-void dfree (T* p) {
+static inline void dfree (T* p) {
     dfree(p, sizeof(T));
 }
 template <class T>
-void ddelete (T* p) {
+static inline void ddelete (T* p) {
     p->~T();
     dfree(p);
 }

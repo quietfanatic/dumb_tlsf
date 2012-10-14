@@ -12,11 +12,11 @@ Performance characteristics:
 
 Tiny code size (< 10k compiled)
 Blazingly fast realtime alloc and free (provided you don't go over the reserved memory size)
-Alloc and free are even faster when sizes are known at compile-time.
+Alloc and free are even faster when sizes are known at compile-time (with optimization).
 Excellent best-case fragmentation (0% overhead!)
 Terrible worst-case fragmentation (almost unbounded)
 Average-case fragmentation depends on how you use it.
-No memory is returned to the OS for other programs to use.
+No memory is automatically returned to the OS for other programs to use.
 
 Usage:
 
