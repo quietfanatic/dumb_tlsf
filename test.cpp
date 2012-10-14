@@ -18,16 +18,16 @@ int main () {
         bigs[i] = dalloc<big>();
         bigs[i]->x[0] = 1;
     }
-    printf("%u\n", i);
+    printf("%u %lu %lu\n", i, dused_memory(), dreserved_memory());
     for (i = 0; i < 100000; i++) {
         dfree(bigs[i]);
     }
-    printf("%u\n", i);
+    printf("%u %lu %lu\n", i, dused_memory(), dreserved_memory());
     for (i = 0; i < 100000; i++) {
         bigs[i] = dalloc<big>();
         bigs[i]->x[0] = 1;
     }
-    printf("%u\n", i);
+    printf("%u %lu %lu\n", i, dused_memory(), dreserved_memory());
     sleep(100000);
     return 0;
 }

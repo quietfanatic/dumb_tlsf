@@ -34,7 +34,7 @@ void* table [] = {  // Some of these near the beginning will be unnused.
 };
 const size_t max_size = 4096 + 3*1024;
 
-size_t reserved_memory = 0;
+char* start = NULL;
 char* limit = NULL;
 char* end = NULL;
 
@@ -48,8 +48,11 @@ void* alloc_e (size_t esize, uint index) {
     else {
         if (limit + esize > end) {
             limit = (char*)_dumb_tlsf_malloc(alloc_size);
-            reserved_memory += alloc_size;
-            end = limit + alloc_size;
+            ((void**)limit)[0] = start;
+            ((size_t*)limit)[1] = alloc_size;
+            start = limit;
+            limit += sizeof(void*) + sizeof(size_t);
+            end = start + alloc_size;
         }
         void* r = limit;
         limit += esize;
@@ -79,8 +82,11 @@ void dfree (void* p, size_t size) {
 void dreserve (size_t size) {
     using namespace dumb_tlsf_private;
     if (!limit) {
-        limit = (char*)_dumb_tlsf_malloc(size);
-        end = limit + size;
+        start = (char*)_dumb_tlsf_malloc(size);
+        ((void**)start)[0] = NULL;
+        ((size_t*)start)[1] = size;
+        limit = start + sizeof(void*) + sizeof(size_t);
+        end = start + size;
     }
 }
 
@@ -88,12 +94,16 @@ void dset_alloc_size (size_t size) {
     dumb_tlsf_private::alloc_size = size;
 }
 
+size_t dreserved_memory () {
+    using namespace dumb_tlsf_private;
+    size_t total;
+    for (void* blk = start; blk; blk = ((void**)blk)[0])
+        total += ((size_t*)blk)[1];
+    return total;
+}
 size_t dused_memory () {
     using namespace dumb_tlsf_private;
-    return reserved_memory - (end - limit);
-}
-size_t dreserved_memory () {
-    return dumb_tlsf_private::reserved_memory;
+    return dreserved_memory() - (end - limit);
 }
 
 template <class T>
