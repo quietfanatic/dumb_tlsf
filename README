@@ -7,7 +7,7 @@ This allocator keeps separate free lists for each size that it allocates.
 Unlike most TLSF allocators, it makes absolutely no effort to combine adjacent
 free blocks.
 
-In other words, it's a hotrod pool allocator with extra features.
+In other words, it's a hotrod pool allocator with mixed sizes and extra features.
 
 Currently requires g++ and C++11.
 
@@ -66,10 +66,12 @@ template <class T>
 void dsdelete (T*);
  // This set of functions stores the size of the object with the object, and frees it
  // based on that size.  This adds some time and space overhead, but provides
- // compatibility with malloc/free and new/delete.  Use these if you don't know the
- // size of the object when you free it.  There is a placement-new provided that you
- // can use with "T* p = new (DS) T (...);", but since there's no corresponding
- // placement-delete it's kinda dumb.  Just use dsnew and dsdelete.
+ // compatibility with malloc/free and new/delete.  Don't mix these with dalloc,
+ // dfree, dnew, and ddelete.
+
+struct _DS;
+ // If you make a class inherit from this, you can use C++ new, new[], delete, and
+ // delete[] syntax on it.  These will use dsalloc and dsfree.
 
 void dreserve (size_t size);
  // Reserve the given amount of memory ahead of time.  This only works before

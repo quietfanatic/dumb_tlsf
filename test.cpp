@@ -6,7 +6,7 @@
 
 using namespace dumb_tlsf;
 
-struct big {
+struct big : _DS {
     char x [4096];
 };
 
@@ -17,16 +17,16 @@ int main () {
     dreserve(100001 * (sizeof(big) + sizeof(size_t)));
     uint i;
     for (i = 0; i < 100000; i++) {
-        bigs[i] = new (DS) big;
+        bigs[i] = new big;
         bigs[i]->x[0] = 1;
     }
     printf("%u %ld %ld\n", i, dused_memory(), dreserved_memory());
     for (i = 0; i < 100000; i++) {
-        operator delete (bigs[i], DS);
+        delete bigs[i];
     }
     printf("%u %ld %ld\n", i, dused_memory(), dreserved_memory());
     for (i = 0; i < 100000; i++) {
-        bigs[i] = new (DS) big;
+        bigs[i] = new big;
         bigs[i]->x[0] = 1;
     }
     printf("%u %ld %ld\n", i, dused_memory(), dreserved_memory());

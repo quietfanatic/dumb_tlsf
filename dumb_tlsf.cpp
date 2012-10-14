@@ -1,8 +1,14 @@
 
-#include <stdlib.h>
 
-static void* (& _dumb_tlsf_malloc ) (size_t) = malloc;
-static void (& _dumb_tlsf_free ) (void*) = free;
+
+#ifndef DUMB_TLSF_ALLOCATOR
+#include <stdlib.h>
+#define DUMB_TLSF_ALLOCATOR malloc
+#endif
+#ifndef DUMB_TLSF_DEALLOCATOR
+#include <stdlib.h>
+static inline void DUMB_TLSF_DEALLOCATOR (void* p, size_t size) { free(p); }
+#endif
 
 namespace dumb_tlsf_private {
 
@@ -54,7 +60,7 @@ static void* alloc_e (size_t esize, uint index) {
     else {
 #ifndef DUMB_TLSF_PROMISE_NO_OVERFLOW
         if (limit + esize > end) {
-            Header* new_res = (Header*)_dumb_tlsf_malloc(alloc_size);
+            Header* new_res = (Header*)DUMB_TLSF_ALLOCATOR(alloc_size);
             new_res->prev = res;
             new_res->size = alloc_size;
             limit = new_res->data;
@@ -79,18 +85,18 @@ namespace dumb_tlsf {
 
 static inline void* dalloc (size_t size) {
     using namespace dumb_tlsf_private;
-    return size > max_size ? _dumb_tlsf_malloc(size) : alloc_e(esizeof(size), segregate(esizeof(size)));
+    return size > max_size ? DUMB_TLSF_ALLOCATOR(size) : alloc_e(esizeof(size), segregate(esizeof(size)));
 }
 
 static inline void dfree (void* p, size_t size) {
     using namespace dumb_tlsf_private;
-    return size > max_size ? _dumb_tlsf_free(p) : free_e(p, esizeof(size), segregate(esizeof(size)));
+    return size > max_size ? DUMB_TLSF_DEALLOCATOR(p, size) : free_e(p, esizeof(size), segregate(esizeof(size)));
 }
 
 static void dreserve (size_t size) {
     using namespace dumb_tlsf_private;
     if (!limit) {
-        res = (Header*)_dumb_tlsf_malloc(size);
+        res = (Header*)DUMB_TLSF_ALLOCATOR(size);
         res->prev = NULL;
         res->size = size;
         limit = res->data;
@@ -119,7 +125,7 @@ static void dapocalypse () {
     Header* pres;
     for (; res; res = pres) {
         pres = res->prev;
-        _dumb_tlsf_free(res);
+        DUMB_TLSF_DEALLOCATOR(res, res->size);
     }
     limit = NULL;
     end = NULL;
@@ -177,7 +183,12 @@ static inline void dsdelete (T* p) {
     dsfree(p);
 }
 
-struct _DS {} DS;
+struct _DS {
+    void* operator new (size_t size) { return dumb_tlsf::dsalloc(size); }
+    void* operator new[] (size_t size) { return dumb_tlsf::dsalloc(size); }
+    void operator delete (void* p) { return dumb_tlsf::dsfree(p); }
+    void operator delete[] (void* p) { return dumb_tlsf::dsfree(p); }
+} DS;
 
 }
 
