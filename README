@@ -6,6 +6,7 @@ An extremely dumb memory allocator in the Two-Level Segregate Fit category.
 This allocator keeps separate free lists for each size that it allocates.
 Unlike most TLSF allocators, it makes absolutely no effort to combine adjacent free blocks.
 
+Currently requires g++ and C++11.
 
 Performance characteristics:
 
