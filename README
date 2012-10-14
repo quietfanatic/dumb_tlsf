@@ -71,13 +71,13 @@ size_t dreserved_memory ();
 
 void dapocalypse ();
  // Free all memory used by Dumb TLSF and start civilization anew.  Won't call destructors.
+ // Will probably return the memory to the OS.
 
 
 Multiple instances:
 
 The file dumb_tlsf.cpp does not have an include guard, so you can include separate copies
-in multiple namespaces.  Then you can selectively dreserve and dapocalypse them to get
-fast memory pools.
+in multiple namespaces.  This could be object-oriented, but that'd complicate the interface.
 
 
 Interface hole:
