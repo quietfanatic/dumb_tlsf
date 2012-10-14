@@ -51,6 +51,7 @@ void* alloc_e (size_t esize, uint index) {
         }
         void* r = limit;
         limit += esize;
+        return r;
     }
 }
 
