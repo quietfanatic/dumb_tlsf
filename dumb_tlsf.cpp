@@ -52,6 +52,7 @@ static void* alloc_e (size_t esize, uint index) {
         return r;
     }
     else {
+#ifndef DUMB_TLSF_PROMISE_NO_OVERFLOW
         if (limit + esize > end) {
             Header* new_res = (Header*)_dumb_tlsf_malloc(alloc_size);
             new_res->prev = res;
@@ -60,6 +61,7 @@ static void* alloc_e (size_t esize, uint index) {
             res = new_res;
             end = (char*)res + alloc_size;
         }
+#endif
         void* r = limit;
         limit += esize;
         return r;

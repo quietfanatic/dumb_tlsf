@@ -1,6 +1,7 @@
 
 #include <stdio.h>
 #include <unistd.h>
+//#define DUMB_TLSF_PROMISE_NO_OVERFLOW
 #include "dumb_tlsf.cpp"
 
 using namespace dumb_tlsf;

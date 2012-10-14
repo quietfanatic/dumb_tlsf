@@ -106,6 +106,14 @@ the interface.
 
 Allocated chunks are aligned to 4 bytes under 32-bit and 8 bytes under 64-bit.
 
+If the allocation fails or something, then probably NULL will be returned.  But if
+that happens, you're probably screwed anyway.
+
+If you define DUMB_TLSF_PROMISE_NO_OVERFLOW before including dumb_tlsf.cpp, you are
+promising you will not exceed your reserved memory.  This may save a few cycles, but
+you will probably segfault if you allocate beyond what you dreserved.  It's
+probably not worth it.
+
 
 Usage recommendations:
 
