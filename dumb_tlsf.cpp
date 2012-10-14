@@ -77,7 +77,7 @@ void dfree_bytes (void* p, size_t size) {
 void dreserve (size_t size) {
     using namespace dumb_tlsf_private;
     if (!limit) {
-        limit = _dumb_tlsf_malloc(size);
+        limit = (char*)_dumb_tlsf_malloc(size);
         end = limit + size;
     }
 }
@@ -94,7 +94,7 @@ T* dnew () {
 }
 template <class T>
 void dfree (T* p) {
-    dfree_bytes(sizeof(T));
+    dfree_bytes(p, sizeof(T));
 }
 template <class T>
 void ddelete (T* p) {
