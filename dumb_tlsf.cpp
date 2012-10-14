@@ -146,4 +146,35 @@ static inline void ddelete (T* p) {
     dfree(p);
 }
 
+static inline void* dsalloc (size_t size) {
+    size_t* p = (size_t*)dalloc(size + sizeof(size_t));
+    *p = size;
+    return p + 1;
+}
+
+static inline void dsfree (void* p) {
+    size_t* sp = (size_t*)p - 1;
+    dfree(sp, *sp);
+}
+
+template <class T>
+static inline T* dsalloc () {
+    return (T*)dsalloc(sizeof(T*));
+}
+
+template <class T, class... Args>
+static inline T* dsnew (Args... args) {
+    T* r = dsalloc<T>();
+    r->T(args...);
+    return r;
+}
+
+template <class T>
+static inline void dsdelete (T* p) {
+    p->~T();
+    dsfree(p);
+}
+
+
+
 }

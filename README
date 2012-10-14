@@ -40,7 +40,7 @@ void dfree (T*);
  // No error checking--freeing an object not allocated with dalloc() invites chaos.
 
 template <class T, class... Args>
-T* dnew (Args... args);
+T* dnew (Args...);
  // Allocate an object of type T and call a constructor with arbitrary arguments.
 template <class T>
 void ddelete (T*);
@@ -55,6 +55,19 @@ void* dalloc (size_t);
 void dfree (void*, size_t);
  // Free the given number of bytes.  Yes, you can use this to cut the end off of an
  // allocated object, provided you later free the object under its new smaller size.
+
+void* dsalloc (size_t);
+template <class T>
+T* dsalloc ();
+template <class T, class... Args>
+T* dsnew (Args...);
+void dsfree (void*);
+template <class T>
+void dsdelete (T*);
+ // This set of functions stores the size of the object with the object, and frees it
+ // based on that size.  This adds some time and space overhead, but provides
+ // compatibility with malloc/free and new/delete.  Use these if you don't know the
+ // size of the object when you free it.
 
 void dreserve (size_t size);
  // Reserve the given amount of memory ahead of time.  This only works before
@@ -83,19 +96,11 @@ void dapocalypse ();
  // destructors.  Will probably return the memory to the OS.
 
 
-Multiple instances:
+Interface notes:
 
 The file dumb_tlsf.cpp does not have an include guard, so you can include separate
 copies in multiple namespaces.  This could be object-oriented, but that'd complicate
 the interface.
-
-
-Interface hole:
-
-Since the size of an object must be given when it is freed, this cannot in most cases
-be used as a drop-in replacement for malloc and free, or even new and delete.  You
-also cannot allocate arrays with this (though it's trivial to write a wrapper class
-like Array(Type, length)).
 
 Allocated chunks are aligned to 4 bytes under 32-bit and 8 bytes under 64-bit.
 
