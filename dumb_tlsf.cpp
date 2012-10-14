@@ -102,14 +102,14 @@ void dset_alloc_size (size_t size) {
 
 size_t dreserved_memory () {
     using namespace dumb_tlsf_private;
-    size_t total;
+    size_t total = 0;
     for (Header* blk = res; blk; blk = blk->prev)
         total += blk->size;
     return total;
 }
 size_t dused_memory () {
     using namespace dumb_tlsf_private;
-    return (long int)dreserved_memory() - ((long int)end - (long int)limit);
+    return dreserved_memory() - (end - limit);
 }
 
 template <class T>
