@@ -20,6 +20,9 @@ No memory is returned to the OS for other programs to use.
 
 Usage:
 
+ // Just dump this directly in your source tree.
+#include "dumb_tlsf/dumb_tlsf.cpp"
+
  // All public functions are in the namespace dumb_tlsf.
 using namespace dumb_tlsf;
 
@@ -68,6 +71,14 @@ size_t dreserved_memory ();
 
 void dapocalypse ();
  // Free all memory used by Dumb TLSF and start civilization anew.  Won't call destructors.
+
+
+Multiple instances:
+
+The file dumb_tlsf.cpp does not have an include guard, so you can include separate copies
+in multiple namespaces.  Then you can selectively dreserve and dapocalypse them to get
+fast memory pools.
+
 
 Interface hole:
 
