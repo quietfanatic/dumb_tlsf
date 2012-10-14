@@ -1,0 +1,68 @@
+
+
+Dumb TLSF
+
+An extremely dumb memory allocator in the Two-Level Segregate Fit category.
+This allocator keeps separate free lists for each size that it allocates.
+Unlike most TLSF allocators, it makes absolutely no effort to combine adjacent free blocks.
+
+
+Performance characteristics:
+
+Tiny code size (< 10k compiled)
+Blazingly fast realtime alloc and free (provided you don't go over the reserved memory size)
+Alloc and free are even faster when sizes are known at compile-time.
+Excellent best-case fragmentation (0% overhead!)
+Terrible worst-case fragmentation (unbounded)
+Average-case fragmentation depends on how you use it.
+No memory is returned to the OS for other programs to use.
+
+Usage:
+
+ // All public functions are in the namespace dumb_tlsf.
+using namespace dumb_tlsf;
+
+template <class T> T* dalloc ();
+ // Allocate an object of type T.
+template <class T> void dfree (T*);
+ // Free a previously allocated object of type T.
+ // No error checking--freeing an object not allocated with dalloc() invites chaos.
+template <class T> T* dnew ();
+ // Allocate an object of type T and call its nullary constructor
+template <class T> void ddelete (T*);
+ // Call the object's destructor and deallocate it.
+void* dalloc_bytes (size_t);
+ // Allocate the given number of bytes.
+void dfree_bytes (void*, size_t);
+ // Free the given number of bytes.  Yes, you can use this to cut the end off of an
+ // allocated object, provided you later free the object under its new smaller size.
+void dreserve (size_t size);
+ // Reserve the given amount of memory ahead of time.  This only works before anything
+ // has been allocated; afterwards it is a no-op.  Using this is not necessary, but
+ // is recommended if you want consistent realtime performance.
+
+Interface hole:
+
+Since the size of an object must be given when it is freed, this cannot in most cases be used
+as a drop-in replacement for malloc and free, or even new and delete.
+
+
+Usage recommendations:
+
+Once you allocate a block of a certain size, that chunk of memory will always stay the
+same size.  So, if your allocation sizes stay predictably the similar over time, you will enjoy
+good memory usage.  If your allocations vary wildly in size, you may start to see problems.
+
+In particular, if you allocate a number of objects of a certain size, then free them, and
+never allocate anything of that size again, you will incur a memory leak equal in size to the
+set of objects you allocated.  But if you allocate the same number of those objects again, you
+will not use any additional memory.
+
+So, this library is good for something like a video game, where realtime performance is crucial,
+but the amount and kinds of allocations stay more or less the same over time, and not so good
+for things like traditional string manipulation, where elements of many different sizes are
+allocated.  But if your strings are reference-counted ropes with fixed-size spans, they would
+probably do very well with this allocator.
+
+Allocations larger than 7k are done through malloc() and thus are not very realtime.  However,
+allocations that large probably mean you shouldn't be using Dumb TLSF in the first place.
