@@ -86,10 +86,10 @@ template <class T>
 T* dalloc () {
     return (T*)dalloc_bytes(sizeof(T));
 }
-template <class T>
-T* dnew () {
+template <class T, class... Args>
+T* dnew (Args... args) {
     T* r = dalloc<T>();
-    r->T();
+    r->T(args...);
     return r;
 }
 template <class T>

@@ -22,20 +22,27 @@ Usage:
  // All public functions are in the namespace dumb_tlsf.
 using namespace dumb_tlsf;
 
-template <class T> T* dalloc ();
+template <class T>
+T* dalloc ();
  // Allocate an object of type T.
-template <class T> void dfree (T*);
+template <class T>
+void dfree (T*);
  // Free a previously allocated object of type T.
  // No error checking--freeing an object not allocated with dalloc() invites chaos.
-template <class T> T* dnew ();
- // Allocate an object of type T and call its nullary constructor
-template <class T> void ddelete (T*);
+
+template <class T, class... Args>
+T* dnew (Args... args);
+ // Allocate an object of type T and call a constructor with arbitrary arguments.
+template <class T>
+void ddelete (T*);
  // Call the object's destructor and deallocate it.
+
 void* dalloc_bytes (size_t);
  // Allocate the given number of bytes.
 void dfree_bytes (void*, size_t);
  // Free the given number of bytes.  Yes, you can use this to cut the end off of an
  // allocated object, provided you later free the object under its new smaller size.
+
 void dreserve (size_t size);
  // Reserve the given amount of memory ahead of time.  This only works before anything
  // has been allocated; afterwards it is a no-op.  Using this is not necessary, but
@@ -44,7 +51,8 @@ void dreserve (size_t size);
 Interface hole:
 
 Since the size of an object must be given when it is freed, this cannot in most cases be used
-as a drop-in replacement for malloc and free, or even new and delete.
+as a drop-in replacement for malloc and free, or even new and delete.  You also cannot
+allocate arrays with this (though it's trivial to write an Array(Type, length) wrapper class).
 
 
 Usage recommendations:
