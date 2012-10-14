@@ -67,7 +67,7 @@ size_t dused_memory ();
  // this after your program has been running for a while, and dreserve a bit more than
  // it.  This number only goes up, and never comes down.
 size_t dreserved_memory ();
- // Get the total amount of memory reserved by Dumb TLSF.
+ // Get the total amount of memory reserved by Dumb TLSF, used or not.
 
 void dapocalypse ();
  // Free all memory used by Dumb TLSF and start civilization anew.  Won't call destructors.
