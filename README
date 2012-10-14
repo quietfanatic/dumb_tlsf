@@ -35,11 +35,15 @@ T* dnew (Args... args);
  // Allocate an object of type T and call a constructor with arbitrary arguments.
 template <class T>
 void ddelete (T*);
- // Call the object's destructor and deallocate it.
+ // Call the object's destructor and deallocate it.  Don't use this on polymorphic
+ // pointers whose target may be larger than the pointer's official superclass.
+template <class T>
+void ddelete (T*, size_t);
+ // Call the object's destructor and deallocate it, with the given size.
 
-void* dalloc_bytes (size_t);
+void* dalloc (size_t);
  // Allocate the given number of bytes.
-void dfree_bytes (void*, size_t);
+void dfree (void*, size_t);
  // Free the given number of bytes.  Yes, you can use this to cut the end off of an
  // allocated object, provided you later free the object under its new smaller size.
 
@@ -47,6 +51,15 @@ void dreserve (size_t size);
  // Reserve the given amount of memory ahead of time.  This only works before anything
  // has been allocated; afterwards it is a no-op.  Using this is not necessary, but
  // is recommended if you want consistent realtime performance.
+void dset_alloc_size (size_t size);
+ // From now on, whenever we run out of reserved memory, this much more memory will be
+ // reserved.  The default alloc_size is one megabyte.  Try using dreserve instead.
+size_t dused_memory ();
+ // Get the total amount of memory used by Dumb TLSF.  Includes fragmentation overhead
+ // caused by freed-and-not-allocated chunks.  Does not include memory that has been
+ // reserved but never allocated.  Before you release a major program version, examine
+ // this after your program has been running for a while, and dreserve a little more than
+ // it.  This number only goes up, and never comes down.
 
 Interface hole:
 
