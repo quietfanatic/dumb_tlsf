@@ -19,7 +19,7 @@ constexpr uint esizeof (uint size) {
 }
 
  // It'll probably be better to have fewer columns in this table...
-void* table [] = {  // Some of these near the beginning will be unnused.
+void* table [] = {  // Some of these near the beginning will be unused.
     NULL, NULL, NULL, NULL,  // 4
     NULL, NULL, NULL, NULL,  // 8
     NULL, NULL, NULL, NULL,  // 16
@@ -110,6 +110,20 @@ size_t dreserved_memory () {
 size_t dused_memory () {
     using namespace dumb_tlsf_private;
     return dreserved_memory() - (end - limit);
+}
+
+void dapocalypse () {
+    using namespace dumb_tlsf_private;
+    Header* pres;
+    for (; res; res = pres) {
+        pres = res->prev;
+        _dumb_tlsf_free(res);
+    }
+    limit = NULL;
+    end = NULL;
+    for (uint i = 0; i < sizeof(table)/sizeof(void*); i++) {
+        table[i] = NULL;
+    }
 }
 
 template <class T>

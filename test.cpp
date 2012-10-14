@@ -28,6 +28,8 @@ int main () {
         bigs[i]->x[0] = 1;
     }
     printf("%u %ld %ld\n", i, dused_memory(), dreserved_memory());
+    dapocalypse();
+    printf("%u %ld %ld\n", i, dused_memory(), dreserved_memory());
     sleep(100000);
     return 0;
 }

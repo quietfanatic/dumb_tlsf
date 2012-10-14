@@ -50,11 +50,13 @@ void dfree (void*, size_t);
 
 void dreserve (size_t size);
  // Reserve the given amount of memory ahead of time.  This only works before anything
- // has been allocated; afterwards it is a no-op.  Using this is not necessary, but
- // is recommended if you want consistent realtime performance.
+ // has been allocated or immediately after the dapocalypse; otherwise it is a no-op.
+ // Using this is not necessary, but is recommended if you want consistent realtime
+ // performance.
 void dset_alloc_size (size_t size);
  // From now on, whenever we run out of reserved memory, this much more memory will be
  // reserved.  The default alloc_size is one megabyte.  Try using dreserve instead.
+
 size_t dused_memory ();
  // Get the total amount of memory used by Dumb TLSF.  Includes fragmentation overhead
  // caused by freed-and-not-allocated chunks.  Does not include memory that has been
@@ -63,6 +65,9 @@ size_t dused_memory ();
  // it.  This number only goes up, and never comes down.
 size_t dreserved_memory ();
  // Get the total amount of memory reserved by Dumb TLSF.
+
+void dapocalypse ();
+ // Free all memory used by Dumb TLSF and start civilization anew.  Won't call destructors.
 
 Interface hole:
 
