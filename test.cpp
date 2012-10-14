@@ -13,6 +13,7 @@ big* bigs [100000];
 
 
 int main () {
+    dreserve(100001 * sizeof(big));
     uint i;
     for (i = 0; i < 100000; i++) {
         bigs[i] = dalloc<big>();
@@ -30,7 +31,7 @@ int main () {
     printf("%u %ld %ld\n", i, dused_memory(), dreserved_memory());
     dapocalypse();
     printf("%u %ld %ld\n", i, dused_memory(), dreserved_memory());
-    sleep(100000);
+    //sleep(100000);
     return 0;
 }
 

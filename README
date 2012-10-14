@@ -6,17 +6,21 @@ An extremely dumb memory allocator in the Two-Level Segregate Fit category.
 This allocator keeps separate free lists for each size that it allocates.
 Unlike most TLSF allocators, it makes absolutely no effort to combine adjacent free blocks.
 
+In other words, it's a hotrod pool allocator.
+
 Currently requires g++ and C++11.
+
 
 Performance characteristics:
 
-Tiny code size (< 10k compiled)
-Blazingly fast realtime alloc and free (provided you don't go over the reserved memory size)
+Tiny code size (< 10k compiled and optimized)
+Blazingly fast realtime alloc and free (except when more memory needs to be reserved)
 Alloc and free are even faster when sizes are known at compile-time (with optimization).
-Excellent best-case fragmentation (0% overhead!)
+Excellent best-case fragmentation (constant + 0% overhead!)
 Terrible worst-case fragmentation (almost unbounded)
 Average-case fragmentation depends on how you use it.
 No memory is automatically returned to the OS for other programs to use.
+
 
 Usage:
 
@@ -66,6 +70,9 @@ size_t dused_memory ();
  // reserved but never allocated.  Before you release a major program version, examine
  // this after your program has been running for a while, and dreserve a bit more than
  // it.  This number only goes up, and never comes down.
+size_t dallocated_memory ();
+ // Like dused_memory, but doesn't include the two-word header per reservation unit.  Use
+ // this to detect leaks after you think you've freed everything manually.
 size_t dreserved_memory ();
  // Get the total amount of memory reserved by Dumb TLSF, used or not.
 
