@@ -58,8 +58,10 @@ size_t dused_memory ();
  // Get the total amount of memory used by Dumb TLSF.  Includes fragmentation overhead
  // caused by freed-and-not-allocated chunks.  Does not include memory that has been
  // reserved but never allocated.  Before you release a major program version, examine
- // this after your program has been running for a while, and dreserve a little more than
+ // this after your program has been running for a while, and dreserve a bit more than
  // it.  This number only goes up, and never comes down.
+size_t dreserved_memory ();
+ // Get the total amount of memory reserved by Dumb TLSF.
 
 Interface hole:
 

@@ -34,7 +34,7 @@ void* table [] = {  // Some of these near the beginning will be unnused.
 };
 const size_t max_size = 4096 + 3*1024;
 
-
+size_t reserved_memory = 0;
 char* limit = NULL;
 char* end = NULL;
 
@@ -48,6 +48,7 @@ void* alloc_e (size_t esize, uint index) {
     else {
         if (limit + esize > end) {
             limit = (char*)_dumb_tlsf_malloc(alloc_size);
+            reserved_memory += alloc_size;
             end = limit + alloc_size;
         }
         void* r = limit;
@@ -85,6 +86,14 @@ void dreserve (size_t size) {
 
 void dset_alloc_size (size_t size) {
     dumb_tlsf_private::alloc_size = size;
+}
+
+size_t dused_memory () {
+    using namespace dumb_tlsf_private;
+    return reserved_memory - (end - limit);
+}
+size_t dreserved_memory () {
+    return dumb_tlsf_private::reserved_memory;
 }
 
 template <class T>
