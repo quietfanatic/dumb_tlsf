@@ -34,7 +34,13 @@ void* table [] = {  // Some of these near the beginning will be unnused.
 };
 const size_t max_size = 4096 + 3*1024;
 
-char* start = NULL;
+struct Header {
+    Header* prev;
+    size_t size;
+    char data [0];
+};
+
+Header* res = NULL;
 char* limit = NULL;
 char* end = NULL;
 
@@ -47,12 +53,12 @@ void* alloc_e (size_t esize, uint index) {
     }
     else {
         if (limit + esize > end) {
-            limit = (char*)_dumb_tlsf_malloc(alloc_size);
-            ((void**)limit)[0] = start;
-            ((size_t*)limit)[1] = alloc_size;
-            start = limit;
-            limit += sizeof(void*) + sizeof(size_t);
-            end = start + alloc_size;
+            Header* new_res = (Header*)_dumb_tlsf_malloc(alloc_size);
+            new_res->prev = res;
+            new_res->size = alloc_size;
+            limit = new_res->data;
+            res = new_res;
+            end = (char*)res + alloc_size;
         }
         void* r = limit;
         limit += esize;
@@ -82,11 +88,11 @@ void dfree (void* p, size_t size) {
 void dreserve (size_t size) {
     using namespace dumb_tlsf_private;
     if (!limit) {
-        start = (char*)_dumb_tlsf_malloc(size);
-        ((void**)start)[0] = NULL;
-        ((size_t*)start)[1] = size;
-        limit = start + sizeof(void*) + sizeof(size_t);
-        end = start + size;
+        res = (Header*)_dumb_tlsf_malloc(size);
+        res->prev = NULL;
+        res->size = size;
+        limit = res->data;
+        end = (char*)res + size;
     }
 }
 
@@ -97,13 +103,13 @@ void dset_alloc_size (size_t size) {
 size_t dreserved_memory () {
     using namespace dumb_tlsf_private;
     size_t total;
-    for (void* blk = start; blk; blk = ((void**)blk)[0])
-        total += ((size_t*)blk)[1];
+    for (Header* blk = res; blk; blk = blk->prev)
+        total += blk->size;
     return total;
 }
 size_t dused_memory () {
     using namespace dumb_tlsf_private;
-    return dreserved_memory() - (end - limit);
+    return (long int)dreserved_memory() - ((long int)end - (long int)limit);
 }
 
 template <class T>

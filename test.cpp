@@ -14,20 +14,20 @@ big* bigs [100000];
 
 int main () {
     uint i;
-    for (i = 0; i < 100000; i++) {
+    for (i = 0; i < 10000; i++) {
         bigs[i] = dalloc<big>();
         bigs[i]->x[0] = 1;
     }
-    printf("%u %lu %lu\n", i, dused_memory(), dreserved_memory());
-    for (i = 0; i < 100000; i++) {
+    printf("%u %ld %ld\n", i, dused_memory(), dreserved_memory());
+    for (i = 0; i < 10000; i++) {
         dfree(bigs[i]);
     }
-    printf("%u %lu %lu\n", i, dused_memory(), dreserved_memory());
-    for (i = 0; i < 100000; i++) {
+    printf("%u %ld %ld\n", i, dused_memory(), dreserved_memory());
+    for (i = 0; i < 10000; i++) {
         bigs[i] = dalloc<big>();
         bigs[i]->x[0] = 1;
     }
-    printf("%u %lu %lu\n", i, dused_memory(), dreserved_memory());
+    printf("%u %ld %ld\n", i, dused_memory(), dreserved_memory());
     sleep(100000);
     return 0;
 }
