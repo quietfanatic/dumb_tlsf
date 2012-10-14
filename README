@@ -116,6 +116,8 @@ promising you will not exceed your reserved memory.  This may save a few cycles,
 you will probably segfault if you allocate beyond what you dreserved.  It's
 probably not worth it.
 
+If you define DUMB_TLSF_ALLOCATOR(size_t) and DUMB_TLSF_DEALLOCATOR(void*, size_t),
+these will be used to reserve memory instead of malloc and free.
 
 Usage recommendations:
 
