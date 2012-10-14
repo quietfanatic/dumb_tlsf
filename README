@@ -104,8 +104,5 @@ not so good for things like traditional string manipulation, where elements of m
 sizes are allocated.  But if your strings are reference-counted ropes with fixed-size chunks,
 they would probably do very well with this allocator.
 
-If all the objects you allocate are exactly the same size, there is no better allocator than
-this one.
-
 Allocations larger than 7k fall through to malloc() and thus are not very realtime.  However,
 allocations that large probably mean you shouldn't be using Dumb TLSF in the first place.
